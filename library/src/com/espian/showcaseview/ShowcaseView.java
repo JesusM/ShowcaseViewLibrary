@@ -9,6 +9,7 @@ import android.graphics.*;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.RelativeLayout;
@@ -16,8 +17,8 @@ import android.widget.RelativeLayout;
 /**
  * A view which allows you to showcase areas of your app with an explanation.
  */
-public class ShowcaseView extends RelativeLayout implements View.OnClickListener,
-		View.OnTouchListener {
+public class ShowcaseView extends RelativeLayout implements
+		View.OnClickListener, View.OnTouchListener {
 
 	public static final int TYPE_NO_LIMIT = 0;
 	public static final int TYPE_ONE_SHOT = 1;
@@ -49,18 +50,21 @@ public class ShowcaseView extends RelativeLayout implements View.OnClickListener
 	public ShowcaseView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
 		if (attrs != null) {
-			TypedArray styled = getContext().obtainStyledAttributes(attrs, R.styleable.ShowcaseView, defStyle, 0);
+			TypedArray styled = getContext().obtainStyledAttributes(attrs,
+					R.styleable.ShowcaseView, defStyle, 0);
 			int reference = Color.argb(128, 80, 80, 80);
-			backColor = styled.getInt(R.styleable.ShowcaseView_backgroundColor, Color.argb(128, 80, 80, 80));
+			backColor = styled.getInt(R.styleable.ShowcaseView_backgroundColor,
+					Color.argb(128, 80, 80, 80));
 			styled.recycle();
 		}
 	}
 
 	private void init() {
-		boolean hasShot = getContext().getSharedPreferences(INTERNAL_PREFS, Context.MODE_PRIVATE)
-				.getBoolean(SHOT_PREF_STORE, false);
+		boolean hasShot = getContext().getSharedPreferences(INTERNAL_PREFS,
+				Context.MODE_PRIVATE).getBoolean(SHOT_PREF_STORE, false);
 		if (hasShot && shotType == TYPE_ONE_SHOT) {
-			// The showcase has already been shot once, so we don't need to do anything
+			// The showcase has already been shot once, so we don't need to do
+			// anything
 			setVisibility(View.GONE);
 			isRedundant = true;
 			return;
@@ -79,8 +83,9 @@ public class ShowcaseView extends RelativeLayout implements View.OnClickListener
 
 	/**
 	 * Set the view to showcase
-	 *
-	 * @param view The {@link View} to showcase.
+	 * 
+	 * @param view
+	 *            The {@link View} to showcase.
 	 */
 	public void setShowcaseView(final View view) {
 		if (isRedundant || view == null) {
@@ -102,7 +107,7 @@ public class ShowcaseView extends RelativeLayout implements View.OnClickListener
 
 	/**
 	 * Set a specific position to showcase
-	 *
+	 * 
 	 * @param x
 	 * @param y
 	 */
@@ -110,6 +115,7 @@ public class ShowcaseView extends RelativeLayout implements View.OnClickListener
 		if (isRedundant) {
 			return;
 		}
+		init();
 		showcaseX = x;
 		showcaseY = y;
 		invalidate();
@@ -117,8 +123,9 @@ public class ShowcaseView extends RelativeLayout implements View.OnClickListener
 
 	/**
 	 * Set the shot method of the showcase - only once or no limit
-	 *
-	 * @param shotType either TYPE_ONE_SHOT or TYPE_NO_LIMIT
+	 * 
+	 * @param shotType
+	 *            either TYPE_ONE_SHOT or TYPE_NO_LIMIT
 	 */
 	public void setShotType(int shotType) {
 		if (shotType == TYPE_NO_LIMIT || shotType == TYPE_ONE_SHOT) {
@@ -127,9 +134,12 @@ public class ShowcaseView extends RelativeLayout implements View.OnClickListener
 	}
 
 	/**
-	 * Decide whether touches outside the showcased circle should be ignored or not
-	 *
-	 * @param block true to block touches, false otherwise. By default, this is true.
+	 * Decide whether touches outside the showcased circle should be ignored or
+	 * not
+	 * 
+	 * @param block
+	 *            true to block touches, false otherwise. By default, this is
+	 *            true.
 	 */
 	public void blockNonShowcasedTouches(boolean block) {
 		this.block = block;
@@ -137,8 +147,9 @@ public class ShowcaseView extends RelativeLayout implements View.OnClickListener
 
 	/**
 	 * Override the standard button click event, if there is a button available
-	 *
-	 * @param listener Listener to listen to on click events
+	 * 
+	 * @param listener
+	 *            Listener to listen to on click events
 	 */
 	public void overrideButtonClick(OnClickListener listener) {
 		if (isRedundant) {
@@ -164,24 +175,32 @@ public class ShowcaseView extends RelativeLayout implements View.OnClickListener
 			return;
 		}
 
-		Bitmap b = Bitmap.createBitmap(getMeasuredWidth(), getMeasuredHeight(), Bitmap.Config.ARGB_8888);
+		Bitmap b = Bitmap.createBitmap(getMeasuredWidth(), getMeasuredHeight(),
+				Bitmap.Config.ARGB_8888);
 		Canvas c = new Canvas(b);
 
-		//Draw the semi-transparent background
+		// Draw the semi-transparent background
 		c.drawColor(backColor);
 
-		//Erase the area for the ring
+		// Erase the area for the ring
 		Paint eraser = new Paint();
 		eraser.setColor(0xFFFFFF);
 		eraser.setAlpha(0);
 		eraser.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.MULTIPLY));
-		c.drawCircle(showcaseX, showcaseY, showcaseRadius, eraser);
+		c.drawCircle(0, showcaseY, showcaseRadius, eraser);
 
 		int cx = (int) showcaseX, cy = (int) showcaseY;
+
+		
 		int dw = showcase.getIntrinsicWidth();
 		int dh = showcase.getIntrinsicHeight();
 
+		Log.d("ShowcaseView", "dw: " + dw + " dh: " + dh);
+
 		showcase.setBounds(cx - dw / 2, cy - dh / 2, cx + dw / 2, cy + dh / 2);
+		// showcase.setBounds(-(dw), cy - dh / 2, cy - 25, cy + dh / 2);
+		// showcase.setBounds(-(int) showcaseX, cy - dh / 2, cx + dw / 2, cy
+		// + dh / 2);
 		showcase.draw(c);
 
 		canvas.drawBitmap(b, 0, 0, null);
@@ -196,7 +215,8 @@ public class ShowcaseView extends RelativeLayout implements View.OnClickListener
 	public void onClick(View view) {
 		// If the type is set to one-shot, store that it has shot
 		if (shotType == TYPE_ONE_SHOT) {
-			SharedPreferences internal = getContext().getSharedPreferences("showcase_internal", Context.MODE_PRIVATE);
+			SharedPreferences internal = getContext().getSharedPreferences(
+					"showcase_internal", Context.MODE_PRIVATE);
 			internal.edit().putBoolean("hasShot", true).commit();
 		}
 
@@ -274,7 +294,8 @@ public class ShowcaseView extends RelativeLayout implements View.OnClickListener
 		} else {
 			float xDelta = Math.abs(motionEvent.getRawX() - showcaseX);
 			float yDelta = Math.abs(motionEvent.getRawY() - showcaseY);
-			double distanceFromFocus = Math.sqrt(Math.pow(xDelta, 2) + Math.pow(yDelta, 2));
+			double distanceFromFocus = Math.sqrt(Math.pow(xDelta, 2)
+					+ Math.pow(yDelta, 2));
 			return distanceFromFocus > showcaseRadius;
 		}
 	}
