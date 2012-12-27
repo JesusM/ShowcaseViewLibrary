@@ -191,7 +191,6 @@ public class ShowcaseView extends RelativeLayout implements
 
 		int cx = (int) showcaseX, cy = (int) showcaseY;
 
-		
 		int dw = showcase.getIntrinsicWidth();
 		int dh = showcase.getIntrinsicHeight();
 
@@ -204,7 +203,7 @@ public class ShowcaseView extends RelativeLayout implements
 		showcase.draw(c);
 
 		canvas.drawBitmap(b, 0, 0, null);
-		c.setBitmap(null);
+		// c.setBitmap(null);
 		b = null;
 
 		super.dispatchDraw(canvas);
